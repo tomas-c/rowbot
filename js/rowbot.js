@@ -1,3 +1,23 @@
+var grav = {x: 0, y:0, z: 0};
+
+function exclude_gravity(accel) {
+	var alpha = 0.8;
+	var new_accel = {x: 0, y: 0, z: 0};
+
+	// alpha is calculated as t / (t + dT)
+	// with t is low-pass filter's time-constant
+	// and dT, the event delivery rate
+	grav.x = alpha*grav.x + (1-alpha)*accel.x;
+	grav.y = alpha*grav.y + (1-alpha)*accel.y;
+	grav.z = alpha*grav.z + (1-alpha)*accel.z;
+
+	new_accel.x = accel.x - grav.x;
+	new_accel.y = accel.y - grav.y;
+	new_accel.z = accel.z - grav.z;
+
+	return new_accel;
+}
+
 VelocityPlotter = function() {
 	this.t = 0;
 	this.v = {x:0,y:0,z:0};
@@ -8,13 +28,14 @@ VelocityPlotter = function() {
 
 	this.update = function(acc, dt) {
 		// May need to add angular velocity
+		var new_acc = exclude_gravity(acc);
 		this.t += dt;
 
 		// numerical integration
 		//this.v += acc*dt;
-		this.v.x += acc.x*dt;
-		this.v.y += acc.y*dt;
-		this.v.z += acc.z*dt;
+		this.v.x += new_acc.x*dt;
+		this.v.y += new_acc.y*dt;
+		this.v.z += new_acc.z*dt;
 
 		// magnitude
 		// magnitude = Math.sqrt(Math.pow(this.v.x, 2) + Math.pow(this.v.y, 2) + Math.pow(this.v.z, 2));
@@ -34,13 +55,14 @@ PositionPlotter = function() {
 	}
 
 	this.update = function(acc, dt) {
+		var new_acc = exclude_gravity(acc);
 		this.t += dt;
 
 		// numerical integration
 		//this.v += acc*dt;
-		this.v.x += acc.x*dt;
-		this.v.y += acc.y*dt;
-		this.v.z += acc.z*dt;
+		this.v.x += new_acc.x*dt;
+		this.v.y += new_acc.y*dt;
+		this.v.z += new_acc.z*dt;
 
 		// this.p += this.v*dt;
 		this.p.x += this.v.x*dt;
