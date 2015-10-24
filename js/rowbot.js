@@ -28,14 +28,13 @@ VelocityPlotter = function() {
 
 	this.update = function(acc, dt) {
 		// May need to add angular velocity
-		var new_acc = exclude_gravity(acc);
 		this.t += dt;
 
 		// numerical integration
 		//this.v += acc*dt;
-		this.v.x += new_acc.x*dt;
-		this.v.y += new_acc.y*dt;
-		this.v.z += new_acc.z*dt;
+		this.v.x += acc.x*dt;
+		this.v.y += acc.y*dt;
+		this.v.z += acc.z*dt;
 
 		// magnitude
 		// magnitude = Math.sqrt(Math.pow(this.v.x, 2) + Math.pow(this.v.y, 2) + Math.pow(this.v.z, 2));
@@ -60,9 +59,9 @@ PositionPlotter = function() {
 
 		// numerical integration
 		//this.v += acc*dt;
-		this.v.x += new_acc.x*dt;
-		this.v.y += new_acc.y*dt;
-		this.v.z += new_acc.z*dt;
+		this.v.x += acc.x*dt;
+		this.v.y += acc.y*dt;
+		this.v.z += acc.z*dt;
 
 		// this.p += this.v*dt;
 		this.p.x += this.v.x*dt;

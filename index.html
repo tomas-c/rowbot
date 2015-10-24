@@ -25,12 +25,12 @@
       // readings
       function initialiseAccelerometer() {
         function onSuccess(acceleration) {
-
-          velocity.update(acceleration, 0.1);
-          position.update(acceleration, 0.1);
+          new_accel = exclude_gravity(acceleration);
+          velocity.update(new_accel, 0.1);
+          position.update(new_accel, 0.1);
 
           var timeNow = new Date().getTime();
-          pushValue(timeNow, calculateMagnitude(acceleration), acceleration_data_1);
+          pushValue(timeNow, calculateMagnitude(new_accel), acceleration_data_1);
           pushValue(timeNow, calculateMagnitude(velocity.v), velocity_data_1);
           pushValue(timeNow, calculateMagnitude(position.p), position_data_1);
         }
