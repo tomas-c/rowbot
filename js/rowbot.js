@@ -1,6 +1,4 @@
 var VeclocityPlotter = function() {
-	this = {};
-
 	this.t = 0;
 	this.v = {x:0,y:0,z:0};
 
@@ -27,8 +25,6 @@ var VeclocityPlotter = function() {
 }
 
 var PositionPlotter = function() {
-	this = {};
-
 	this.t = 0;
 	this.v = {x:0,y:0,z:0};
 	this.p = {x:0,y:0,z:0};
