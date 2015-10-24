@@ -1,4 +1,4 @@
-var VeclocityPlotter = function() {
+VelocityPlotter = function() {
 	this.t = 0;
 	this.v = {x:0,y:0,z:0};
 
@@ -17,14 +17,14 @@ var VeclocityPlotter = function() {
 		this.v.z += acc.z*dt;
 
 		// magnitude
-		magnitude = Math.sqrt(Math.pow(this.v.x, 2) + Math.pow(this.v.y, 2) + Math.pow(this.v.z, 2));
-		this.plot(this.t, magnitude);
+		// magnitude = Math.sqrt(Math.pow(this.v.x, 2) + Math.pow(this.v.y, 2) + Math.pow(this.v.z, 2));
+		// this.plot(this.t, magnitude);
 	}
 
 	return this;
 }
 
-var PositionPlotter = function() {
+PositionPlotter = function() {
 	this.t = 0;
 	this.v = {x:0,y:0,z:0};
 	this.p = {x:0,y:0,z:0};
@@ -50,8 +50,8 @@ var PositionPlotter = function() {
 
 		//this.plot(this.t, this.p);
 		// magnitude
-		magnitude = Math.sqrt(Math.pow(this.p.x, 2) + Math.pow(this.p.y, 2) + Math.pow(this.p.z, 2));
-		this.plot(this.t, magnitude);
+		// magnitude = Math.sqrt(Math.pow(this.p.x, 2) + Math.pow(this.p.y, 2) + Math.pow(this.p.z, 2));
+		// this.plot(this.t, magnitude);
 	}
 
 	return this;
