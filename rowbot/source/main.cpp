@@ -31,11 +31,14 @@ uint16_t timeCharUUID               = 0xA004;
 const static char     DEVICE_NAME[] = "rowbot";
 static const uint16_t uuid16_list[] = {rowbotServiceUUID}; // DEBUG
 
+
 // Custom characteristics 
 static float accValue[4] = {0, 0, 0, 0};
-ReadOnlyArrayGattCharacteristic<float, sizeof(accValue)> accChar(accelerationCharUUID, accValue);
+//ReadOnlyArrayGattCharacteristic<float, sizeof(accValue)> accChar(accelerationCharUUID, accValue, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY);
+GattCharacteristic accChar(accelerationCharUUID, reinterpret_cast<uint8_t*>(accValue), sizeof(accValue), sizeof(accValue) * 32, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY, NULL, 0);
 static float angValue[4] = {0, 0, 0, 0};
-ReadOnlyArrayGattCharacteristic<float, sizeof(angValue)> angChar(angvelocityCharUUID, angValue);
+//ReadOnlyArrayGattCharacteristic<float, sizeof(angValue)> angChar(angvelocityCharUUID, angValue, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY);
+GattCharacteristic angChar(angvelocityCharUUID, reinterpret_cast<uint8_t*>(angValue), sizeof(angValue), sizeof(angValue) * 32, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY, NULL, 0);
 static uint32_t timeValue = 0;
 ReadOnlyArrayGattCharacteristic<uint32_t, sizeof(timeValue)> timeChar(timeCharUUID, &timeValue);
 
@@ -48,20 +51,42 @@ void disconnectionCallback(const Gap::DisconnectionCallbackParams_t *params)
     BLE::Instance().gap().startAdvertising();
 }
 
+extern uint32_t SystemCoreClock;
+
 void updateSensorValue() {
     BLE &ble = BLE::Instance();
 
-    float acc[] = {1, 2, 3, 0};
-    float ang[] = {4, 5, 6, 0};
+    static int i = 0;
+    i++;
 
+    float acc[] = {1, 2, 3, 0, 4, 5, 6, 0};
     uint32_t acc_time = 10054;
     memcpy(&acc[3], &acc_time, sizeof(acc_time));
+    memcpy(&acc[7], &++acc_time, sizeof(acc_time));
 
+    if(i%2 == 0) {
+        acc[0] = 0;
+        ble.updateCharacteristicValue(accChar.getValueHandle(), reinterpret_cast<const uint8_t*>(acc), sizeof(acc));
+    }
+    else {
+        ble.updateCharacteristicValue(accChar.getValueHandle(), reinterpret_cast<const uint8_t*>(acc), sizeof(acc)/2);
+    }
+
+    float ang[] = {1, 2, 3, 0, 1, 2, 3, 0};
     uint32_t ang_time = 32158;
-    memcpy(&acc[3], &acc_time, sizeof(ang_time));
+    memcpy(&ang[3], &ang_time, sizeof(ang_time));
+    memcpy(&ang[7], &++ang_time, sizeof(ang_time));
 
-    ble.updateCharacteristicValue(accChar.getValueHandle(), reinterpret_cast<const uint8_t*>(acc), sizeof(acc));
-    ble.updateCharacteristicValue(angChar.getValueHandle(), reinterpret_cast<const uint8_t*>(ang), sizeof(ang));
+    if(i%2 == 0) {
+        ang[0] = 0;
+        ble.updateCharacteristicValue(angChar.getValueHandle(), reinterpret_cast<const uint8_t*>(ang), sizeof(ang));
+    }
+    else {
+        ble.updateCharacteristicValue(angChar.getValueHandle(), reinterpret_cast<const uint8_t*>(ang), sizeof(ang)/2);
+    }
+
+    uint32_t time = SystemCoreClock; 
+    ble.updateCharacteristicValue(timeChar.getValueHandle(), reinterpret_cast<const uint8_t*>(&time), sizeof(time));
 }
 
 void blinkCallback(void)
@@ -80,11 +105,13 @@ void app_start(int, char**)
     BLE &ble = BLE::Instance();
     ble.init();
 
-    uint8_t address[] = {0xAB, 0xCD, 0xAB, 0xCD, 0xAB, 0xCD};
+    uint8_t address[] = {0xAB, 0xCD, 0xAB, 0xCD, 0xAB, 0xCF};
     ble.gap().setAddress(Gap::ADDR_TYPE_PUBLIC, address);
     
 
     ble.gap().onDisconnection(disconnectionCallback);
+
+    ble.addService(rowbotService);
 
     /* Setup advertising */
     ble.gap().accumulateAdvertisingPayload(GapAdvertisingData::BREDR_NOT_SUPPORTED | GapAdvertisingData::LE_GENERAL_DISCOVERABLE);
