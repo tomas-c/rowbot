@@ -17,13 +17,17 @@
         initialiseAccelerometer()
       }
 
+      // Temporary code, updating the data with phone accelerometer 
+      // readings
       function initialiseAccelerometer() {
         function onSuccess(acceleration) {
           var x = acceleration.x, 
               y = acceleration.y, 
               z = acceleration.z;
           
-          updateData(Math.sqrt(x*x + y*y + z*z));
+          var timeNow = new Date().getTime();
+          acceleration_data.push([timeNow, Math.sqrt(x*x + y*y + z*z)]);
+          acceleration_data.shift();
         }
 
         function onError(error) {

@@ -43,13 +43,6 @@ var options = {
   }
 }
 
-function updateData(dataPoint) {
-  var timeNow = new Date().getTime();
-  acceleration_data.push([timeNow, dataPoint]);
-  acceleration_data.shift();
-
- // for (int i=0; i<totalPoints-1; i++)
-}
 
 function updateGraph() {
   $.plot($("#acceleration"), data, options);
