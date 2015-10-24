@@ -1,0 +1,12 @@
+{
+  "name": "rowbot",
+  "version": "0.0.0",
+  "bin": "./source",
+  "description": "",
+  "author": "Tomas Cerskus",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mbed-hal-nrf51822-mcu": "AlessandroA/mbed-hal-nrf51822-mcu#1.1.1",
+    "ble": "^1.0.0"
+  }
+}
