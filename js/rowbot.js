@@ -33,7 +33,7 @@ PositionPlotter = function() {
 		console.log('Please implement this.');
 	}
 
-	this.update = function(acc, ang, dt) {
+	this.update = function(acc, dt) {
 		this.t += dt;
 
 		// numerical integration
@@ -57,6 +57,9 @@ PositionPlotter = function() {
 	return this;
 }
 
+calculateMagnitude = function(v) {
+  return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
 // -------------------------------- //
 // MEDIAN FILTER //
 
