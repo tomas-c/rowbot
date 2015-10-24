@@ -1,7 +1,26 @@
 var totalPoints = 100;
 var updateInterval = 100;
-var acceleration_data = new Array(totalPoints);
-var data = [{ data: acceleration_data, label: "Rower 1" }]
+var acceleration_data_1 = new Array(totalPoints);
+var data = [
+  { data: acceleration_data_1, label: "Rower 1" }
+  //, { data: acceleration_data_2, label: "Rower 2" }
+]
+
+/* // TODO?
+function getTime(device) {
+  // Grabs reading from device, returns timestamp
+}
+
+function getStartTimes(devices) {
+  var startTimes = {};
+  for (var device in devices) {
+    startTimes[device] = getTime(device);
+  }
+  return startTimes;
+}
+
+var startTimes = getStartTimes();
+*/
 
 var peaks = new Array(totalPoints);
 
@@ -43,6 +62,11 @@ var options = {
   }
 }
 
+function pushValue(x, y, dataSet) {
+  //x = new Date().getTime();
+  dataSet.push([x, y]);
+  dataSet.shift();
+}
 
 function updateGraph() {
   $.plot($("#acceleration"), data, options);

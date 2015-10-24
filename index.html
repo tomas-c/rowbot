@@ -26,8 +26,7 @@
               z = acceleration.z;
           
           var timeNow = new Date().getTime();
-          acceleration_data.push([timeNow, Math.sqrt(x*x + y*y + z*z)]);
-          acceleration_data.shift();
+          pushValue(timeNow, Math.sqrt(x*x + y*y + z*z), acceleration_data);
         }
 
         function onError(error) {
