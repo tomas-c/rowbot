@@ -3,14 +3,11 @@
 // Short name for EasyBLE library.
 var easyble = evothings.easyble;
 
-// Name of device to connect to
-var MyDeviceName = "rowbot2";
+// Prefix of device(s) to connect to. Never repeat this string in your name twice.
+var MyDeviceNamePrefix = "rowbot";
 
 // Object that holds application data and functions.
 var connection = {};
-
-// Device of type evothings.easyble.EasyBLEDevice
-var GDevice;
 
 // The default UUID suffix when we use short UUIDs in C mbed
 defaultCharUUIDSuffix = "-0000-1000-8000-00805f9b34fb";
@@ -92,11 +89,11 @@ connection.startScan = function() {
 			console.log(device.name.toString() +" : "+device.address.toString().split(":").join(''))
 
 			// If my device is found connect to it
-			if (device.name == MyDeviceName)
+			if (device.name.lastIndexOf(MyDeviceNamePrefix) === 0)
 			{
 				connection.showInfo('Status: Device found: ' + device.name + '.');
-				easyble.stopScan();
-				connection.connectToDevice(device);
+		//		easyble.stopScan();
+				connection.connectToDevice(device, device.name.toString());
 			}
 		},
 		function(errorCode)
@@ -109,18 +106,17 @@ connection.startScan = function() {
 /*
  * Read services for a device.
 */
-connection.connectToDevice = function(device)
+connection.connectToDevice = function(device, deviceName)
 {
 	console.log("Starting ConnectToDevice")
 	connection.showInfo('Connecting...');
 	device.connect(
-		function(device)
+		function()
 		{
-			GDevice = device;
 			connection.showInfo('Status: Connected');
-			connection.readServices(GDevice);
+			connection.readServices(device);
 			// For some reason the characteristic doesn't exist, probably due to readServices interaction
-			setTimeout(connection.enableNotification,1000);
+			setTimeout(function() {connection.enableNotification(device, deviceName)},1000);
 		},
 		function(errorCode)
 		{
@@ -153,8 +149,7 @@ connection.readServices = function(device)
 /*
  * convert base64 to array to hex.
 */ 
-connection.getHexData = function(data)
-{
+connection.getHexData = function(data) {
 	if(data){ // sanity check
 		return evothings.util.typedArrayToHexString(evothings.util.base64DecToArr(data))	
 	}
@@ -163,20 +158,20 @@ connection.getHexData = function(data)
 /*
  * Read characteristics
  */
-connection.enableNotification = function() {
+connection.enableNotification = function(device, deviceName) {
 	hyper.log("Enabling notifications..")
 
-	GDevice.writeDescriptor(charUUIDs["acceleration"], 
+	device.writeDescriptor(charUUIDs["acceleration"], 
                         "00002902"+defaultCharUUIDSuffix, 
                         new Uint8Array([1,0]),
                         function () {
-                            hyper.log("enabled notifications")
+                            hyper.log("enabled notifications for " + deviceName)
                         },
                         function (err) {
                             hyper.log(err);
                             hyper.log("failed to write descriptor")
                         });
-	GDevice.enableNotification(charUUIDs["acceleration"],
+	device.enableNotification(charUUIDs["acceleration"],
 		function(data) {
 			var accelData = [];
 			var accelDatum = {};
@@ -202,7 +197,8 @@ connection.enableNotification = function() {
 				accelData.push(accelDatum);
 			}
       accelData.sort(function (a, b) { return a.t > b.t; });
-			connection.notificationCallback(accelData);
+			// hyper.log(deviceName);
+			connection.notificationCallback(accelData, deviceName);
 		}, function(err) {
 			hyper.log(err)
 		});
