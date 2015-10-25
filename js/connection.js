@@ -44,6 +44,9 @@ connection.initialize = function()
 		'deviceready',
 		function() { evothings.scriptsLoaded(connection.onDeviceReady()) },
 		false);
+	connection.notificationCallback = function(a) {
+		hyper.log(JSON.stringify(a));
+	};
 };
 
 /*
@@ -71,9 +74,7 @@ connection.onDeviceReady = function()
 */
 connection.showInfo = function(info)
 {
-	if (document.getElementById('info')) {
-		document.getElementById('info').innerHTML = info;
-	}
+	document.getElementById('info').innerHTML = info;
 	console.log(info);
 };
 
