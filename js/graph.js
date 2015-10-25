@@ -144,7 +144,7 @@ graph.lowPassFilter = function(data, smoothed_data) {
   }
   // Such hackery
   var x0 = 9.8;
-  var alpha = 0.3;
+  var alpha = 0.1;
 
   // Much wow
   for (var i=0; i<data.length; i++) {
@@ -169,15 +169,13 @@ graph.update = function() {
   }
   $.plot($("#acceleration"), graph.acceleration_data, $.extend({}, graph.acceleration_options, nameHook("acceleration profile")));
 
- // hyper.log(graph.acceleration_data_1);
   graph.lowPassFilter(graph.acceleration_data_1, graph.smooth_data_1);
   graph.lowPassFilter(graph.acceleration_data_2, graph.smooth_data_2);
   
-  $.plot($("#smooth"), graph.smooth_data, $.extend({}, graph.acceleration_options, nameHook("smoothed graph")));
+  $.plot($("#smooth"), graph.smooth_data, $.extend({}, graph.acceleration_options, nameHook("synchronization")));
 
- // hyper.log(graph.dipsPerMinute(graph.smooth_data));
   $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_2, graph.stroke_impulse_data_2)) || 0) + " strokes per minute");
   $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_1, graph.stroke_impulse_data_1)) || 0) + " strokes per minute");
-  $.plot($("#mean"), graph.stroke_impulse_data, $.extend({}, graph.acceleration_options, nameHook("stroke impulse")));
+  $.plot($("#mean"), graph.stroke_impulse_data, $.extend({}, graph.acceleration_options, nameHook("stroke inversion")));
   setTimeout(graph.update, graph.updateInterval);
 }
