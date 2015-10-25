@@ -20,13 +20,13 @@ graph.acceleration_data = [
 ];
 
 graph.smooth_data = [
-  { data: graph.smooth_data_1, color: "#00CCFF" },
-  { data: graph.smooth_data_2 }
+  { data: graph.smooth_data_1, color: "#00CCFF", xaxis: 1 },
+  { data: graph.smooth_data_2, xaxis: 2  }
 ];
 
 graph.stroke_impulse_data = [
-  { data: graph.stroke_impulse_data_1, color: "#00CCFF" },
-  { data: graph.stroke_impulse_data_2 }
+  { data: graph.stroke_impulse_data_1, color: "#00CCFF", xaxis: 1  },
+  { data: graph.stroke_impulse_data_2, xaxis: 2 }
 ];
 
 /*
@@ -86,14 +86,7 @@ graph.acceleration_options = {
     tickLength: 0,
     show: false
   },
-  xaxes: [time_options, time_options],
-  hooks: {
-    draw: function(plot, canvasctx) {
-      canvasctx.font = "100 25px roboto";
-      canvasctx.fillStyle = "white";
-      canvasctx.fillText("rowers", 20, 40);
-    }
-  }
+  xaxes: [time_options, time_options]
 }
 
 graph.takeReadings = function(newData, deviceName) {//, dataSet) {
@@ -122,7 +115,7 @@ graph.calculateMagnitude = function(v) {
 }
 
 graph.dipsPerMinute = function(accelerationData, strokeData) {
-  if (accelerationData[0] == null) {
+  if (!accelerationData || accelerationData[0] == null) {
     return
   }
   var timePeriod = accelerationData[accelerationData.length-1][0] - accelerationData[0][0];
@@ -145,31 +138,46 @@ graph.dipsPerMinute = function(accelerationData, strokeData) {
   return numDips/timePeriod * 1000 * 60;
 }
 
-graph.lowPassFilter = function(data) {
+graph.lowPassFilter = function(data, smoothed_data) {
   if (data[0] == null) {
-    return [];
+    return;
   }
+  // Such hackery
   var x0 = 9.8;
   var alpha = 0.3;
-  var smoothed = [];
-  
+
+  // Much wow
   for (var i=0; i<data.length; i++) {
-    smoothed.push([data[i][0], (alpha * data[i][1]) + (1.0 - alpha) * x0]);
-    x0 = smoothed[i][1];
+    smoothed_data[i] = [data[i][0], (alpha * data[i][1]) + (1.0 - alpha) * x0];
+    x0 = smoothed_data[i][1];
   }
-  return smoothed;
+ 
+  // It just werks
 }
 
 graph.update = function() {
-  $.plot($("#acceleration"), graph.acceleration_data, graph.acceleration_options);
+  function nameHook(name) {
+    return {
+      hooks: {
+        draw: function(plot, canvasctx) {
+          canvasctx.font = "100 25px roboto";
+          canvasctx.fillStyle = "white";
+          canvasctx.fillText(name, 20, 40);
+        }
+      } 
+    }
+  }
+  $.plot($("#acceleration"), graph.acceleration_data, $.extend({}, graph.acceleration_options, nameHook("acceleration profile")));
+
+ // hyper.log(graph.acceleration_data_1);
+  graph.lowPassFilter(graph.acceleration_data_1, graph.smooth_data_1);
+  graph.lowPassFilter(graph.acceleration_data_2, graph.smooth_data_2);
   
-  graph.smooth_data_1 = graph.lowPassFilter(graph.acceleration_data_1);
-  graph.smooth_data_2 = graph.lowPassFilter(graph.acceleration_data_2);
-  $.plot($("#smooth"), graph.smooth_data, graph.acceleration_options);
+  $.plot($("#smooth"), graph.smooth_data, $.extend({}, graph.acceleration_options, nameHook("smoothed graph")));
 
  // hyper.log(graph.dipsPerMinute(graph.smooth_data));
   $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_2, graph.stroke_impulse_data_2)) || 0) + " strokes per minute");
   $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_1, graph.stroke_impulse_data_1)) || 0) + " strokes per minute");
-  $.plot($("#mean"), graph.stroke_impulse_data, graph.acceleration_options);
+  $.plot($("#mean"), graph.stroke_impulse_data, $.extend({}, graph.acceleration_options, nameHook("stroke impulse")));
   setTimeout(graph.update, graph.updateInterval);
 }

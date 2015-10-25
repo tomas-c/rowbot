@@ -186,7 +186,7 @@ connection.enableNotification = function(device, deviceName) {
 				// set true for little-endian
 				accelDatum.x = dataView.getFloat32(i, true);
 				i += 4;
-				accelDatum.y = dataView.getFloat32(i, true);
+				accelDatum.y = dataView.getFloat32(i, true)*0;
 				i += 4;
 				accelDatum.z = dataView.getFloat32(i, true);
 				i += 4;
