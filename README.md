@@ -38,7 +38,7 @@ Below is a screenshot of the mobile app reading data from two sensors attached t
 
 ### Improvements over [existing system](http://dms.ife.ee.ethz.ch/index.php/attachments/single/865)
 
-- Cost efficiency.
+- Extremely cost efficient.
 - Unobstructive and lightweight.
 - Significant increase in battery life.
-- Visual real-time feedback via wireless communication.
+- Visual real-time feedback via wireless communication  .
