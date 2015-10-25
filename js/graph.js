@@ -2,7 +2,7 @@ var graph = {};
 
 graph.totalPoints = 100;
 graph.updateInterval = 100;
-graph.mean_data = new Array(graph.totalPoints);
+graph.stroke_impulse = new Array(graph.totalPoints);
 graph.smooth_data = new Array(graph.totalPoints);
 graph.acceleration_data_1 = new Array(graph.totalPoints); // Array of numbers
 graph.acceleration_data = [
@@ -101,7 +101,7 @@ graph.calculateMagnitude = function(v) {
   return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-graph.countDips = function(dataSet) {
+graph.dipsPerMinute = function(dataSet) {
   if (dataSet[0] == null) {
     return
   }
@@ -111,11 +111,11 @@ graph.countDips = function(dataSet) {
   var climbing = false;
 
   for (var i=0; i<dataSet.length; i++) {
-    graph.mean_data[i] = [dataSet[i][0], 0];
+    graph.stroke_impulse[i] = [dataSet[i][0], 0];
     if (dataSet[i][1] < threshold && !climbing) {
       climbing = true;
       numDips += 1;
-      graph.mean_data[i][1] = 10;
+      graph.stroke_impulse[i][1] = 10;
     }
     else if (dataSet[i][1] > threshold && climbing) {
         climbing = false;
@@ -145,7 +145,8 @@ graph.update = function() {
   
   graph.smooth_data = graph.lowPassFilter(graph.acceleration_data_1);
   $.plot($("#smooth"), [graph.smooth_data], graph.acceleration_options);
-  hyper.log(graph.countDips(graph.smooth_data));
-  $.plot($("#mean"), [graph.mean_data], graph.acceleration_options);
+ // hyper.log(graph.dipsPerMinute(graph.smooth_data));
+  $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data)) || 0) + " strokes per minute");
+  $.plot($("#mean"), [graph.stroke_impulse], graph.acceleration_options);
   setTimeout(graph.update, graph.updateInterval);
 }
