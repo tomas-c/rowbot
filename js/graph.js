@@ -2,12 +2,31 @@ var graph = {};
 
 graph.totalPoints = 100;
 graph.updateInterval = 100;
-graph.stroke_impulse = new Array(graph.totalPoints);
-graph.smooth_data = new Array(graph.totalPoints);
-graph.acceleration_data_1 = new Array(graph.totalPoints); // Array of numbers
+
+
+graph.stroke_impulse_data_1 = new Array(graph.totalPoints);
+graph.smooth_data_1 = new Array(graph.totalPoints);
+graph.acceleration_data_1 = new Array(graph.totalPoints);
+
+graph.stroke_impulse_data_2 = new Array(graph.totalPoints);
+graph.smooth_data_2 = new Array(graph.totalPoints);
+graph.acceleration_data_2 = new Array(graph.totalPoints);
+
+graph.deviceToDataArray = { "rowbot2": graph.acceleration_data_1,
+                            "rowbot3": graph.acceleration_data_2 };
 graph.acceleration_data = [
-  { data: graph.acceleration_data_1 }
-  //, { data: graph.acceleration_data_2, label: "Rower 2" }
+  { data: graph.acceleration_data_1, color: "#00CCFF", xaxis: 1 },
+  { data: graph.acceleration_data_2, xaxis: 2 }
+];
+
+graph.smooth_data = [
+  { data: graph.smooth_data_1, color: "#00CCFF" },
+  { data: graph.smooth_data_2 }
+];
+
+graph.stroke_impulse_data = [
+  { data: graph.stroke_impulse_data_1, color: "#00CCFF" },
+  { data: graph.stroke_impulse_data_2 }
 ];
 
 /*
@@ -25,27 +44,7 @@ function getStartTimes(devices) {
 
 var startTimes = getStartTimes();
 */
-
-graph.acceleration_options = {
-  grid: {
-    borderWidth: 0,
-    backgroundColor: "#D3D3D3"
-  },
-  series: {
-    lines: {
-      show: true,
-      lineWidth: 1.2,
-      fill: false
-    },
-    shadowSize: 0	// Drawing is faster without shadows
-  },
-  yaxis: {
-    min: 0,
-    max: 20,
-    tickLength: 0,
-    show: false
-  },
-  xaxis: {
+time_options = {
     mode: "time",
     show: false,
     tickSize: [0.1, "second"],
@@ -67,7 +66,27 @@ graph.acceleration_options = {
     axisLabelFontSizePixels: 12,
     axisLabelFontFamily: 'Verdana, Arial',
     axisLabelPadding: 10
+};
+graph.acceleration_options = {
+  grid: {
+    borderWidth: 0,
+    backgroundColor: "#5F5F5F"
   },
+  series: {
+    lines: {
+      show: true,
+      lineWidth: 1.2,
+      fill: false
+    },
+    shadowSize: 0	// Drawing is faster without shadows
+  },
+  yaxis: {
+    min: 0,
+    max: 20,
+    tickLength: 0,
+    show: false
+  },
+  xaxes: [time_options, time_options],
   hooks: {
     draw: function(plot, canvasctx) {
       canvasctx.font = "100 25px roboto";
@@ -77,12 +96,13 @@ graph.acceleration_options = {
   }
 }
 
-graph.takeReadings = function(newData) {//, dataSet) {
+graph.takeReadings = function(newData, deviceName) {//, dataSet) {
   /*
     newData: Array of datapoints, with attributes t, x, y, z
     dataSet: Array of [timeStamp, magnitude]
   */
-  var dataSet = graph.acceleration_data_1;
+  var dataSet = graph.deviceToDataArray[deviceName];
+  
   for (var i=0; i<newData.length; i++) {
     var data = newData[i];
     graph.pushValue(data.t,
@@ -101,23 +121,23 @@ graph.calculateMagnitude = function(v) {
   return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-graph.dipsPerMinute = function(dataSet) {
-  if (dataSet[0] == null) {
+graph.dipsPerMinute = function(accelerationData, strokeData) {
+  if (accelerationData[0] == null) {
     return
   }
-  var timePeriod = dataSet[dataSet.length-1][0] - dataSet[0][0];
+  var timePeriod = accelerationData[accelerationData.length-1][0] - accelerationData[0][0];
   var threshold = 7.9;
   var numDips = 0;
   var climbing = false;
 
-  for (var i=0; i<dataSet.length; i++) {
-    graph.stroke_impulse[i] = [dataSet[i][0], 0];
-    if (dataSet[i][1] < threshold && !climbing) {
+  for (var i=0; i<accelerationData.length; i++) {
+    strokeData[i] = [accelerationData[i][0], 0];
+    if (accelerationData[i][1] < threshold && !climbing) {
       climbing = true;
       numDips += 1;
-      graph.stroke_impulse[i][1] = 10;
+      strokeData[i][1] = 10;
     }
-    else if (dataSet[i][1] > threshold && climbing) {
+    else if (accelerationData[i][1] > threshold && climbing) {
         climbing = false;
     }
   }
@@ -143,10 +163,13 @@ graph.lowPassFilter = function(data) {
 graph.update = function() {
   $.plot($("#acceleration"), graph.acceleration_data, graph.acceleration_options);
   
-  graph.smooth_data = graph.lowPassFilter(graph.acceleration_data_1);
-  $.plot($("#smooth"), [graph.smooth_data], graph.acceleration_options);
+  graph.smooth_data_1 = graph.lowPassFilter(graph.acceleration_data_1);
+  graph.smooth_data_2 = graph.lowPassFilter(graph.acceleration_data_2);
+  $.plot($("#smooth"), graph.smooth_data, graph.acceleration_options);
+
  // hyper.log(graph.dipsPerMinute(graph.smooth_data));
-  $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data)) || 0) + " strokes per minute");
-  $.plot($("#mean"), [graph.stroke_impulse], graph.acceleration_options);
+  $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_2, graph.stroke_impulse_data_2)) || 0) + " strokes per minute");
+  $('#spm').text("" + (Math.round(graph.dipsPerMinute(graph.smooth_data_1, graph.stroke_impulse_data_1)) || 0) + " strokes per minute");
+  $.plot($("#mean"), graph.stroke_impulse_data, graph.acceleration_options);
   setTimeout(graph.update, graph.updateInterval);
 }
