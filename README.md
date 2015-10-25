@@ -35,3 +35,10 @@ It is important that the blade during each stroke is both not too deep and not t
 Below is a screenshot of the mobile app reading data from two sensors attached to two different people.
 
 ![Performance indicators](docs/img/indicators-small.jpg "Performance indicators")
+
+### Improvements over [existing system](http://dms.ife.ee.ethz.ch/index.php/attachments/single/865)
+
+- Cost efficiency.
+- Unobstructive and lightweight.
+- Significant increase in battery life.
+- Visual real-time feedback via wireless communication.
