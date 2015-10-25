@@ -1,7 +1,7 @@
 var grav = {x: 0, y:0, z: 0};
 
 function exclude_gravity(accel) {
-	var alpha = 0.8;
+	var alpha = 0.05;
 	var new_accel = {x: 0, y: 0, z: 0};
 
 	// alpha is calculated as t / (t + dT)
@@ -78,9 +78,7 @@ PositionPlotter = function() {
 	return this;
 }
 
-calculateMagnitude = function(v) {
-  return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-}
+
 // -------------------------------- //
 // MEDIAN FILTER //
 
