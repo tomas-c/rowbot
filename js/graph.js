@@ -3,9 +3,10 @@ var graph = {};
 graph.totalPoints = 100;
 graph.updateInterval = 100;
 graph.mean_data = new Array(graph.totalPoints);
+graph.smooth_data = new Array(graph.totalPoints);
 graph.acceleration_data_1 = new Array(graph.totalPoints); // Array of numbers
 graph.acceleration_data = [
-  { data: graph.acceleration_data_1, label: "Rower 1" }
+  { data: graph.acceleration_data_1 }
   //, { data: graph.acceleration_data_2, label: "Rower 2" }
 ];
 
@@ -26,6 +27,10 @@ var startTimes = getStartTimes();
 */
 
 graph.acceleration_options = {
+  grid: {
+    borderWidth: 0,
+    backgroundColor: "#243"
+  },
   series: {
     lines: {
       show: true,
@@ -36,7 +41,9 @@ graph.acceleration_options = {
   },
   yaxis: {
     min: 0,
-    max: 20
+    max: 20,
+    tickLength: 0,
+    show: false
   },
   xaxis: {
     mode: "time",
@@ -92,7 +99,7 @@ graph.countDips = function(dataSet) {
     return
   }
   var timePeriod = dataSet[dataSet.length-1][0] - dataSet[0][0];
-  var threshold = 8;
+  var threshold = 7.9;
   var numDips = 0;
   var climbing = false;
 
@@ -129,8 +136,9 @@ graph.lowPassFilter = function(data) {
 graph.update = function() {
   $.plot($("#acceleration"), graph.acceleration_data, graph.acceleration_options);
   
-  //graph.mean_data = graph.lowPassFilter(graph.acceleration_data_1);
-  hyper.log(graph.countDips(graph.acceleration_data_1));
+  graph.smooth_data = graph.lowPassFilter(graph.acceleration_data_1);
+  $.plot($("#smooth"), [graph.smooth_data], graph.acceleration_options);
+  hyper.log(graph.countDips(graph.smooth_data));
   $.plot($("#mean"), [graph.mean_data], graph.acceleration_options);
   setTimeout(graph.update, graph.updateInterval);
 }
