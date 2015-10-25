@@ -9,30 +9,25 @@
   </head>
 
   <body>
-    <div id="acceleration" style="width:100%;height:30%;"></div>
-    <div id="velocity" style="width:100%;height:30%;"></div>
-    <div id="position" style="width:100%;height:30%;"></div>
+    <div id="acceleration" style="width:100%;height:100%;"></div>
+
     <script src="js/graphs.js"></script>
     <script src="js/rowbot.js"></script>
     <script>
       function initialise() {
         initialiseAccelerometer()
       }
-      var velocity = VelocityPlotter();
-      var position = PositionPlotter();
 
       // Temporary code, updating the data with phone accelerometer 
       // readings
       function initialiseAccelerometer() {
         function onSuccess(acceleration) {
-          new_accel = exclude_gravity(acceleration);
-          velocity.update(new_accel, 0.1);
-          position.update(new_accel, 0.1);
+         // new_accel = exclude_gravity(acceleration);
 
           var timeNow = new Date().getTime();
-          pushValue(timeNow, calculateMagnitude(new_accel), acceleration_data_1);
-          pushValue(timeNow, calculateMagnitude(velocity.v), velocity_data_1);
-          pushValue(timeNow, calculateMagnitude(position.p), position_data_1);
+          //pushValue(timeNow, calculateMagnitude(new_accel), acceleration_data_1);
+
+          graph.pushValue(timeNow, graph.calculateMagnitude(acceleration), graph.acceleration_data_1);
         }
 
         function onError(error) {
@@ -48,10 +43,11 @@
       document.addEventListener(
         'deviceready',
         initialise,
-        false)
-        hyper.log("Starting")
+        false
+      );
+      hyper.log("Starting");
 
-      updateGraph();
+      graph.update();
 
     </script>
   
