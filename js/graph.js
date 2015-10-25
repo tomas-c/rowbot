@@ -29,7 +29,7 @@ var startTimes = getStartTimes();
 graph.acceleration_options = {
   grid: {
     borderWidth: 0,
-    backgroundColor: "#243"
+    backgroundColor: "#D3D3D3"
   },
   series: {
     lines: {
