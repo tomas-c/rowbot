@@ -201,7 +201,7 @@ connection.enableNotification = function() {
 				
 				accelData.push(accelDatum);
 			}
-
+      accelData.sort(function (a, b) { return a.t > b.t; });
 			connection.notificationCallback(accelData);
 		}, function(err) {
 			hyper.log(err)

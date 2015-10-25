@@ -2,6 +2,7 @@ var graph = {};
 
 graph.totalPoints = 100;
 graph.updateInterval = 100;
+graph.mean_data = new Array(graph.totalPoints);
 graph.acceleration_data_1 = new Array(graph.totalPoints); // Array of numbers
 graph.acceleration_data = [
   { data: graph.acceleration_data_1, label: "Rower 1" }
@@ -85,18 +86,45 @@ graph.pushValue = function(x, y, dataSet) {
 graph.calculateMagnitude = function(v) {
   return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
-
+/*
 graph.countPeaks = function(dataSet) {
-  var sum = 0;
-  for (var i=0; i<dataSet.length; i++) {
-    sum += dataSet[i];
+  if (dataSet[0] == null) {
+    return
   }
-  var mean = sum/dataSet.length;
-  
+  var threshold = 13;
+  var numPeaks = 0;
+  var climbing = false;
 
+  for (var i=0; i<dataSet.length; i++) {
+    if (dataSet[i][1] > threshold && !climbing) {
+      climbing = true;
+      numPeaks += 1;
+    }
+    else if (dataSet[i][1] < threshold && climbing) {
+        
+      }
+  }
+}
+*/
+graph.lowPassFilter = function(data) {
+  if (data[0] == null) {
+    return [];
+  }
+  var x0 = 9.8;
+  var alpha = 0.3;
+  var smoothed = [];
+  
+  for (var i=0; i<data.length; i++) {
+    smoothed.push([data[i][0], (alpha * data[i][1]) + (1.0 - alpha) * x0]);
+    x0 = smoothed[i][1];
+  }
+  return smoothed;
 }
 
 graph.update = function() {
   $.plot($("#acceleration"), graph.acceleration_data, graph.acceleration_options);
+  //graph.countPeaks(graph.acceleration_data_1);
+  //graph.mean_data = graph.lowPassFilter(graph.acceleration_data_1);
+  //$.plot($("#mean"), [graph.mean_data], graph.acceleration_options);
   setTimeout(graph.update, graph.updateInterval);
 }
