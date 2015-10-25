@@ -67,6 +67,13 @@ graph.acceleration_options = {
     axisLabelFontSizePixels: 12,
     axisLabelFontFamily: 'Verdana, Arial',
     axisLabelPadding: 10
+  },
+  hooks: {
+    draw: function(plot, canvasctx) {
+      canvasctx.font = "100 25px roboto";
+      canvasctx.fillStyle = "white";
+      canvasctx.fillText("rowers", 20, 40);
+    }
   }
 }
 
