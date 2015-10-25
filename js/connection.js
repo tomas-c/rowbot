@@ -4,7 +4,7 @@
 var easyble = evothings.easyble;
 
 // Name of device to connect to
-var MyDeviceName = "rowbot1";
+var MyDeviceName = "rowbot2";
 
 // Object that holds application data and functions.
 var connection = {};
@@ -42,7 +42,7 @@ connection.initialize = function()
 {
 	document.addEventListener(
 		'deviceready',
-		function() { evothings.scriptsLoaded(connection.onDeviceReady()) },
+		function() { evothings.scriptsLoaded(connection.onDeviceReady) },
 		false);
 };
 
@@ -181,7 +181,7 @@ connection.enableNotification = function() {
 			var accelData = [];
 			var accelDatum = {};
 			var i = 0;
-			hyper.log("acceleration notification received")
+		//	hyper.log("acceleration notification received")
 			var dataView = new DataView(data);
 	//		hyper.log("Received acceleration ArrayBuffer length: " + data.byteLength);
 			while (i<data.byteLength) {

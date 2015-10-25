@@ -62,16 +62,16 @@ graph.acceleration_options = {
   }
 }
 
-graph.takeReadings = function(newData, dataSet) {
+graph.takeReadings = function(newData) {//, dataSet) {
   /*
     newData: Array of datapoints, with attributes t, x, y, z
     dataSet: Array of [timeStamp, magnitude]
   */
-
+  var dataSet = graph.acceleration_data_1;
   for (var i=0; i<newData.length; i++) {
     var data = newData[i];
     graph.pushValue(data.t,
-                    calculateMagnitude({ x: data.x, y: data.y, z: data.z }),
+                    graph.calculateMagnitude({ x: data.x, y: data.y, z: data.z }),
                     dataSet);
   }
 }
@@ -84,6 +84,16 @@ graph.pushValue = function(x, y, dataSet) {
 
 graph.calculateMagnitude = function(v) {
   return Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+graph.countPeaks = function(dataSet) {
+  var sum = 0;
+  for (var i=0; i<dataSet.length; i++) {
+    sum += dataSet[i];
+  }
+  var mean = sum/dataSet.length;
+  
+
 }
 
 graph.update = function() {
